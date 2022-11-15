@@ -16,26 +16,25 @@ import java.util.Scanner;
 public class ReaderService implements IReaderService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReaderService.class);
 
-    public PartitionDTO read() {
-        List<Integer> partitionList = readScPartitionList();
-        return new PartitionDTO(partitionList, readScSubListSize(partitionList.size()));
+    public PartitionDTO read()  throws InputException{
+        Scanner sc = new Scanner(System.in);
+
+        List<Integer> partitionList = readScPartitionList(sc);
+        return new PartitionDTO(partitionList, readScSubListSize(partitionList.size(),sc));
     }
 
-    private List<Integer> readScPartitionList() {
+    private List<Integer> readScPartitionList(Scanner sc) throws InputException{
         LOGGER.info("Début lecture de la liste");
-        Scanner sc = new Scanner(System.in);
         int partitionListSize = -1;
         while (partitionListSize <= 0) {
             try {
                 System.out.println("Entrez la taille de la liste");
                 partitionListSize = sc.nextInt();
                 if (partitionListSize <= 0) {
-                    LOGGER.error(InputException.NEGATIVE_LIST_SIZE);
+                    throw new InputException(InputException.NEGATIVE_LIST_SIZE);
                 }
             } catch (InputMismatchException e) {
-                LOGGER.error(InputException.LIST_SIZE_NOT_NUMERIC);
-                sc = new Scanner(System.in);
-                partitionListSize = -1;
+                throw new InputException(InputException.LIST_SIZE_NOT_NUMERIC);
             }
         }
 
@@ -48,8 +47,7 @@ public class ReaderService implements IReaderService {
                     partitionList.add(sc.nextInt());
                     isRead = true;
                 } catch (InputMismatchException e) {
-                    LOGGER.error(InputException.VALUE_NOT_NUMERIC);
-                    sc = new Scanner(System.in);
+                    throw new InputException(InputException.VALUE_NOT_NUMERIC);
                 }
             }
 
@@ -58,24 +56,22 @@ public class ReaderService implements IReaderService {
         return partitionList;
     }
 
-    private int readScSubListSize(int partitionListSize) {
+    private int readScSubListSize(int partitionListSize, Scanner sc) {
         LOGGER.info("Début lecture de la taille de la sous-liste");
 
-        Scanner sc = new Scanner(System.in);
+
         int subListSize = -1;
         while (subListSize <= 0 || partitionListSize < subListSize) {
             try {
                 System.out.println("Entrez la taille de la sous liste");
                 subListSize = sc.nextInt();
                 if (subListSize <= 0) {
-                    LOGGER.error(InputException.NEGATIVE_PARTITION_SIZE);
+                    throw new InputException(InputException.NEGATIVE_PARTITION_SIZE);
                 } else if (partitionListSize < subListSize) {
-                    LOGGER.error(InputException.PARTITION_BIGGER_LIST);
+                    throw new InputException(InputException.PARTITION_BIGGER_LIST);
                 }
             } catch (InputMismatchException e) {
-                LOGGER.error(InputException.PARTITION_SIZE_NOT_NUMERIC);
-                sc = new Scanner(System.in);
-                subListSize = -1;
+                throw new InputException(InputException.PARTITION_SIZE_NOT_NUMERIC);
             }
         }
 
